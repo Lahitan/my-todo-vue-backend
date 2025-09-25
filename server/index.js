@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 // Removed: const fetch = require('node-fetch'); // Not needed for Node.js v18+
 
 const app = express();
@@ -9,6 +10,9 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(cors()); // Enable CORS for all routes
 app.use(express.json()); // Enable JSON body parsing
+
+// Serve static files from the Vue frontend build
+app.use(express.static(path.join(__dirname, '../client/dist')));
 
 // --- API Key Check (Backend) ---
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
@@ -57,6 +61,11 @@ app.post('/api/gemini-motivation', async (req, res) => {
 // Basic route for testing server status
 app.get('/', (req, res) => {
   res.send('Gemini Proxy Server is running.');
+});
+
+// Catch-all route to serve the Vue app's index.html
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../client/dist', 'index.html'));
 });
 
 // Start the server
